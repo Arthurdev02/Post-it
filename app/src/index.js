@@ -1,4 +1,5 @@
-// Import de la feuille de style
-import './assets/css/style.css';
+// Import de la classe App
+import App from './AppPostits/App';
 
-console.log( 'Allez, au boulot ! 🚀' );
+
+app.start();

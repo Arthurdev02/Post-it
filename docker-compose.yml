@@ -1,4 +1,4 @@
-name: <<PROJECT_NAME>>
+name: js-object-post-it
 
 services:
   # NodeJS
