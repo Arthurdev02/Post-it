@@ -22,6 +22,11 @@ class App {
     elOlPiList;
 
     /**
+     * Tableau de travail contenant la liste réelle des Post-Its
+     */
+    arrPostIt = [];
+
+    /**
      * Démarreur de l'application
      */
     start() {
@@ -29,16 +34,6 @@ class App {
 
         // Rendu de l'Interface Utilisateur
         this.renderBaseUI();
-
-        //TEST 
-        const pTest = new PostIt({
-
-            title: 'Toto à la plage',
-            content: 'Il nage le crawl au milieu des requins',
-            dateCreate: 1666180099794,
-            dateUpdate: 1666180099794
-        })
-        this.elOlPiList.append(pTest.getDOM());
     }
 
     /**
@@ -79,10 +74,12 @@ class App {
         this.elInputNewPiTitle = document.createElement('input');
         this.elInputNewPiTitle.type = 'text';
         this.elInputNewPiTitle.placeholder = 'Titre';
+        this.elInputNewPiTitle.addEventListener('focus', this.handlerRemoveError.bind(this));
 
         // <textarea placeholder="Contenu"></textarea>
         this.elTextareaNewPiContent = document.createElement('textarea');
         this.elTextareaNewPiContent.placeholder = 'Contenu';
+        this.elTextareaNewPiContent.addEventListener('focus', this.handlerRemoveError.bind(this));
 
         // <button type="button">➕</button>
         const elBtnNewPiAdd = document.createElement('button');
@@ -109,17 +106,36 @@ class App {
         // Injection <form>+<div> dans <header>
         elHeader.append(elForm, elDivClear);
 
-
         // -- <main>
         const elMain = document.createElement('main');
-        //<ol id="nota-list"></ol>
+
+        // - <ol id="nota-list"></ol>
         this.elOlPiList = document.createElement('ol');
         this.elOlPiList.id = 'nota-list';
 
-        //Injection <ol> dans <main>
+        // Injection <ol> dans <main>
         elMain.append(this.elOlPiList);
+
         // -- Injection <header>+<main> dans <body>
         document.body.append(elHeader, elMain);
+    }
+
+    /**
+     * Effectue le rendu de la liste des Post-Its
+     */
+    renderList() {
+        // 1 - Vider le <ol> de la liste
+        this.elOlPiList.innerHTML = '';
+
+        // 2 - Reconstruire la liste à partir du Tableau de Post-Its
+        // Version Junior dev
+        // for( let postIt of this.arrPostIt ) {
+        //     let elPostIt = postIt.getDOM();
+        //     this.elOlPiList.append( elPostIt );
+        // }
+        // Version Senior dev
+        for (let postIt of this.arrPostIt)
+            this.elOlPiList.append(postIt.getDOM());
     }
 
     /**
@@ -128,7 +144,67 @@ class App {
      * @param {Event} evt Événement produit intercepté par l'écouteur
      */
     handlerAddNewPostIt(evt) {
-        // TODO: LE code
+        // Récupérer la saisie
+        let newTitle = this.elInputNewPiTitle.value;
+        let newContent = this.elTextareaNewPiContent.value;
+        let now = Date.now();
+
+        // Vérifier la saisie
+        // "Flag" => drapeau qui indique la présence d'une erreur
+        let hasError = false;
+
+        // \S = autre chose que des espaces ou rien
+        const regExpNotEmpty = new RegExp(/\S/);
+
+        // Si newTitle ne passe pas le test
+        if (!regExpNotEmpty.test(newTitle)) {
+            hasError = true;
+            this.elInputNewPiTitle.value = '';
+            this.elInputNewPiTitle.classList.add('error');
+        }
+
+        // Si newContent ne pas le test
+        if (!regExpNotEmpty.test(newContent)) {
+            hasError = true;
+            this.elTextareaNewPiContent.value = '';
+            this.elTextareaNewPiContent.classList.add('error');
+        }
+
+        // Si il y a eu une erreur, on arrête ici
+        if (hasError) return;
+
+        // 1 - Créer une version litérale du Post-It avec les données du formulaire
+        const newPostItLiteral = {
+            title: newTitle,
+            content: newContent,
+            dateCreate: now,
+            dateUpdate: now
+        };
+
+        // 2 - Créer une instance de la classe Post-Its
+        const newPostIt = new PostIt(newPostItLiteral);
+
+        // 3 - Ajouter l'instance au début du tableau de travail
+        this.arrPostIt.unshift(newPostIt);
+
+        // 4 - Reconstruit le contenu de la liste
+        this.renderList();
+
+        // 5 - Vider les champs du formulaire
+        this.elInputNewPiTitle.value = '';
+        this.elTextareaNewPiContent.value = '';
+    }
+
+    /**
+     * Gestionnaire de suppression de l'état "erreur" d'un champ de formulaire
+     * 
+     * @param {Event} evt 
+     */
+    handlerRemoveError(evt) {
+        // Récupérer le champ concerné
+        let elField = evt.target;
+
+        elField.classList.remove('error');
     }
 
     /**
@@ -137,7 +213,10 @@ class App {
      * @param {Event} evt Événement produit intercepté par l'écouteur
      */
     handlerClear(evt) {
-    // TODO: LE code
+        // 1 - Vider le tableaux de la liste des des Post-Its
+        this.arrPostIt = [];
+        // 2 - Regénérer la liste à l'affic
+        this.renderList();
     }
 
 }

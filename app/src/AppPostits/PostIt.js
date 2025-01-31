@@ -25,7 +25,10 @@ export class PostIt {
         this.dateUpdate = postItLiteral.dateUpdate;
     }
 
-    //DOM : Document Object Model
+    /**
+     * Crée le DOM du post-it
+     * @returns {HTMLElement} Le DOM du post-it
+     */
     getDOM() {
 
         /*
@@ -83,6 +86,9 @@ export class PostIt {
         //Ajout de la innerDom au li
         elLi.innerHTML = innerDom;
 
+        //Ecouteur du click 
+        elLi.addEventListener('click', this.handlerButtons.bind(this));
+
         return elLi;
     }
     /**
@@ -96,5 +102,7 @@ export class PostIt {
             dateCreate: this.dateCreate,
             dateUpdate: this.dateUpdate
         };
+    }
+    handlerButtons() {
     }
 }
