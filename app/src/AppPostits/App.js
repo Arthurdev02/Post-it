@@ -35,19 +35,24 @@ class App {
         // Rendu de l'Interface Utilisateur
         this.renderBaseUI();
 
-        //Pose des ecouteur 
+        // Pose des des écouteurs de post-its
         this.initPostItListeners();
     }
 
-
-
     /**
-     * Initialise les écouteur des évenements sur les post-it
+     * Initialise les écouteurs des événements émis par les Post-It
      */
     initPostItListeners() {
-        //Suppression d'un post-it
-        document.addEventListener('pi.delet', this.handlerOnPiDelete.bind(this));
+        // Edition
+        document.addEventListener('pi.edit', this.handlerOnPiEdit.bind(this));
+        // Suppression
+        document.addEventListener('pi.delete', this.handlerOnPiDelete.bind(this));
+        // Sauvegarde
+        document.addEventListener('pi.save', this.handlerOnPiSave.bind(this));
+        // Annulation
+        document.addEventListener('pi.cancel', this.handlerOnPiCancel.bind(this));
     }
+
     /**
      * Effectue le rendu de l'UI de base
      */
@@ -239,20 +244,47 @@ class App {
     }
 
     /**
+     * Gestionnaire d'édition d'un Post-It
+     * 
+     * @param {CustomEvent} evt 
+     */
+    handlerOnPiEdit(evt) {
+        const postIt = evt.detail.emitter;
+        console.log(postIt);
+    }
+
+    /**
      * Gestionnaire de suppression d'un Post-It
      * 
      * @param {CustomEvent} evt 
      */
     handlerOnPiDelete(evt) {
         const postIt = evt.detail.emitter;
-        //Array filter retourn un tableau des post-it sans celui que l'on veut supprimer
+        // Array filter retourne un tableau des post-it sans celui que l'on veut supprimer
         const arrListAfterDelete = this.arrPostIt.filter(pi => !Object.is(postIt, pi));
-        //O,n r&afecte le tableai de post pi avc ce nouveaux tablreau
+        // On réaffecte le tableau de post-it avec ce nouveau tableau
         this.arrPostIt = arrListAfterDelete;
-    //On regénère l'affichage
+        // On refait l'affichage
         this.renderList();
     }
 
+    /**
+     * Gestionnaire de sauvegarde d'un Post-It
+     * 
+     * @param {CustomEvent} evt 
+     */
+    handlerOnPiSave(evt) {
+        const postIt = evt.detail.emitter;
+    }
+
+    /**
+     * Gestionnaire d'annulation d'un Post-It
+     * 
+     * @param {CustomEvent} evt 
+     */
+    handlerOnPiCancel(evt) {
+        const postIt = evt.detail.emitter;
+    }
 
 }
 

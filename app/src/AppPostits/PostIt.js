@@ -13,11 +13,31 @@ const MODE_EDIT = 'edit';
 */
 export class PostIt {
 
+    /**
+     * Données : Titre
+     */
     title;
+    /**
+     * Données : Contenu
+     */
     content;
+    /**
+     * Données : Timestamp JS de création
+     */
     dateCreate;
+    /**
+     * Données : Timestamp JS de modification
+     */
     dateUpdate;
+
+    /**
+     * Objet de detail ajouté aux événements émis par les actions
+     */
     eventDetail;
+    /**
+     * Élément DOM du Post-It
+     */
+    container = null;
 
     constructor(postItLiteral) {
         this.title = postItLiteral.title;
@@ -25,16 +45,20 @@ export class PostIt {
         this.dateCreate = postItLiteral.dateCreate;
         this.dateUpdate = postItLiteral.dateUpdate;
 
-        //Objet detail pour l'évenement personaliser des action sur le post-it
+        // Objet "detail" pour l'événement personnalisé des actions sur le post-it
         this.eventDetail = { detail: { emitter: this } };
     }
 
     /**
-     * Créé le DOM pour un Post-It
+     * Créé et stocke le DOM pour le Post-It
      * 
      * @returns {HTMLElement} Elément DOM conteneur du Post-It
      */
     getDOM() {
+        // S'il a déjà été créé, on le retourne
+        if (this.container !== null) return this.container;
+
+        // Sinon on fabrique le DOM
         /*
         Template :
 
@@ -59,9 +83,9 @@ export class PostIt {
             <div class="nota-content">THE_CONTENT</div>
         </li>
         */
-        const elLi = document.createElement('li');
-        elLi.classList.add('nota');
-        elLi.dataset.mode = MODE_VIEW;
+        this.container = document.createElement('li');
+        this.container.classList.add('nota');
+        this.container.dataset.mode = MODE_VIEW;
 
         // Dates formatées
         let dateCreate = new Date(this.dateCreate).toLocaleString();
@@ -71,7 +95,7 @@ export class PostIt {
         innerDom += '<div class="nota-header">';
         innerDom += '<div class="nota-times">';
         innerDom += `<strong>création: </strong>${dateCreate}<br>`;
-        innerDom += `<strong>maj: </strong>${dateUpdate}`;
+        innerDom += `<strong>màj: </strong>${dateUpdate}`;
         innerDom += '</div>';
         innerDom += '<div class="nota-cmd">';
         innerDom += '<div data-cmd="view">';
@@ -88,26 +112,27 @@ export class PostIt {
         innerDom += `<div class="nota-content">${this.content}</div>`;
 
         // Ajout du contenu
-        elLi.innerHTML = innerDom;
+        this.container.innerHTML = innerDom;
 
         // Ecouteur du click
-        elLi.addEventListener('click', this.handlerButtons.bind(this));
+        this.container.addEventListener('click', this.handlerButtons.bind(this));
 
-        return elLi;
+        return this.container;
     }
 
     /**
      * Action du bouton d'édition
      */
     commandEdit() {
-        console.log('Edition...');
+        const editEvent = new CustomEvent('pi.edit', this.eventDetail);
+        document.dispatchEvent(editEvent);
     }
 
     /**
      * Action du bouton de suppression
      */
     commandDelete() {
-        const deleteEvent = new CustomEvent('pi.delet', this.eventDetail);
+        const deleteEvent = new CustomEvent('pi.delete', this.eventDetail);
         document.dispatchEvent(deleteEvent);
     }
 
@@ -115,14 +140,16 @@ export class PostIt {
      * Action du bouton de sauvegarde
      */
     commandSave() {
-        console.log('Sauvegarde...');
+        const saveEvent = new CustomEvent('pi.save', this.eventDetail);
+        document.dispatchEvent(saveEvent);
     }
 
     /**
      * Action du bouton d'annulation
      */
     commandCancel() {
-        console.log('Annulation...');
+        const cancelEvent = new CustomEvent('pi.cancel', this.eventDetail);
+        document.dispatchEvent(cancelEvent);
     }
 
     /**
@@ -166,7 +193,7 @@ export class PostIt {
                 break;
 
             default:
-            //console.log(elTarget);
+                console.log(elTarget);
         }
     }
 }
