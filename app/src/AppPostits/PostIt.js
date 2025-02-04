@@ -46,6 +46,10 @@ export class PostIt {
      * Élement DOM du contenu du post-it
      */
     containerContent = null;
+    /**
+     * Élement DOM de la date de mise à jour du post-it
+     */
+    containerDateUpdate = null;
 
     constructor(postItLiteral) {
         this.title = postItLiteral.title;
@@ -74,7 +78,7 @@ export class PostIt {
             <div class="nota-header">
                 <div class="nota-times">
                     <strong>création: </strong>LA_DATE<br>
-                    <strong>màj: </strong>LA_DATE
+                    <strong>màj: </strong><span class="date-update">LA_DATE</span>
                 </div>
                 <div class="nota-cmd">
                     <div data-cmd="view">
@@ -103,7 +107,7 @@ export class PostIt {
         innerDom += '<div class="nota-header">';
         innerDom += '<div class="nota-times">';
         innerDom += `<strong>création: </strong>${dateCreate}<br>`;
-        innerDom += `<strong>màj: </strong>${dateUpdate}`;
+        innerDom += `<strong>màj: </strong><span class="date-update">${dateUpdate}</span>`;
         innerDom += '</div>';
         innerDom += '<div class="nota-cmd">';
         innerDom += '<div data-cmd="view">';
@@ -135,6 +139,9 @@ export class PostIt {
 
         // Ecouteur du click
         this.container.addEventListener('click', this.handlerButtons.bind(this));
+
+        // Récupération du <span class="date-update">
+        this.containerDateUpdate = this.container.querySelector('.date-update');
 
         return this.container;
     }

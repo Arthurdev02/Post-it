@@ -291,6 +291,31 @@ class App {
      */
     handlerOnPiSave(evt) {
         const postIt = evt.detail.emitter;
+
+        // - Gestion de l'affichage du post-it
+        // Passage en mode vue du post-it
+        postIt.setViewMode();
+
+        // On réinitialise le backup
+        this.backupPostItData = null;
+
+        // - Gestion des données
+        // On modifie les données du post-it à partir des valeurs saisie
+        postIt.title = postIt.containerTitle.textContent;
+        postIt.content = postIt.containerContent.textContent;
+
+        // On met à jour dateUpdate
+        postIt.dateUpdate = Date.now();
+
+        // On met à jour le DOM avec la nouvelle dateUpdate
+        postIt.containerDateUpdate.textContent = new Date(postIt.dateUpdate).toLocaleString();
+
+        // On retrie le tableau par date de modification (le plus récent d'abord)
+        // Fonction de tri à bulle
+        this.arrPostIt.sort((a, b) => b.dateUpdate - a.dateUpdate);
+
+        // - Gestion de l'affichage de la liste
+        this.renderList();
     }
 
     /**
