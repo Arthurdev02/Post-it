@@ -27,6 +27,11 @@ class App {
     arrPostIt = [];
 
     /**
+     * Données d'un post-it avant édition
+     */
+    backupPostItData = null;
+
+    /**
      * Démarreur de l'application
      */
     start() {
@@ -249,8 +254,16 @@ class App {
      * @param {CustomEvent} evt 
      */
     handlerOnPiEdit(evt) {
+        // Si on est déjà en train d'éditer un post-it, on ressort
+        if (this.backupPostItData !== null) return;
+
         const postIt = evt.detail.emitter;
-        console.log(postIt);
+
+        // On crée une copie des données du post-it en cas d'annulation
+        this.backupPostItData = postIt.toJSON();
+
+        // Passage en mode édition
+        postIt.setEditMode();
     }
 
     /**
@@ -259,6 +272,9 @@ class App {
      * @param {CustomEvent} evt 
      */
     handlerOnPiDelete(evt) {
+        // Si on est déjà en train d'éditer un post-it, on ressort
+        if (this.backupPostItData !== null) return;
+
         const postIt = evt.detail.emitter;
         // Array filter retourne un tableau des post-it sans celui que l'on veut supprimer
         const arrListAfterDelete = this.arrPostIt.filter(pi => !Object.is(postIt, pi));

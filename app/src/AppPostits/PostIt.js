@@ -38,6 +38,14 @@ export class PostIt {
      * Élément DOM du Post-It
      */
     container = null;
+    /**
+     * Élement DOM du titre du post-it
+     */
+    containerTitle = null;
+    /**
+     * Élement DOM du contenu du post-it
+     */
+    containerContent = null;
 
     constructor(postItLiteral) {
         this.title = postItLiteral.title;
@@ -108,16 +116,45 @@ export class PostIt {
         innerDom += '</div>';
         innerDom += '</div>';
         innerDom += '</div>';
-        innerDom += `<div class="nota-title">${this.title}</div>`;
-        innerDom += `<div class="nota-content">${this.content}</div>`;
 
         // Ajout du contenu
         this.container.innerHTML = innerDom;
+
+        // <div class="nota-title">
+        this.containerTitle = document.createElement('div');
+        this.containerTitle.classList.add('nota-title');
+        this.containerTitle.textContent = this.title;
+
+        // <div class="nota-content">
+        this.containerContent = document.createElement('div');
+        this.containerContent.classList.add('nota-content');
+        this.containerContent.textContent = this.content;
+
+        // Injection <div class="nota-title">+<div class="nota-content"> dans this.container
+        this.container.append(this.containerTitle, this.containerContent);
 
         // Ecouteur du click
         this.container.addEventListener('click', this.handlerButtons.bind(this));
 
         return this.container;
+    }
+
+    /**
+     * Passe le DOM du Post-It en mode édition
+     */
+    setEditMode() {
+        this.container.dataset.mode = MODE_EDIT;
+        this.containerTitle.contentEditable = true;
+        this.containerContent.contentEditable = true;
+    }
+
+    /**
+     * Passe le DOM du Post-It en mode vue
+     */
+    setViewMode() {
+        this.container.dataset.mode = MODE_VIEW;
+        this.containerTitle.contentEditable = false;
+        this.containerContent.contentEditable = false;
     }
 
     /**
@@ -193,7 +230,7 @@ export class PostIt {
                 break;
 
             default:
-                console.log(elTarget);
+                break;
         }
     }
 }
