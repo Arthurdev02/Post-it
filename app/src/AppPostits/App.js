@@ -2,7 +2,9 @@
 
 // Import de la feuille de style
 import '../assets/css/style.css';
+
 import { PostIt } from './PostIt';
+import { PostItService } from './Services/PostItService';
 
 // La class n'est pas exportée, ce qui empêche de l'importer et de l'instancier
 // C'est l'équivalent du constructeur privé en PHP
@@ -32,6 +34,18 @@ class App {
     backupPostItData = null;
 
     /**
+     * Service de données à utiliser
+     */
+    dataService;
+
+    /**
+     * Constructeur
+     */
+    constructor(service) {
+        this.dataService = service;
+    }
+
+    /**
      * Démarreur de l'application
      */
     start() {
@@ -42,6 +56,12 @@ class App {
 
         // Pose des des écouteurs de post-its
         this.initPostItListeners();
+
+        // Chargement des données
+        this.arrPostIt = dataService.getAll();
+
+        // Affichage de la liste
+        this.renderList();
     }
 
     /**
@@ -215,10 +235,13 @@ class App {
         // 3 - Ajouter l'instance au début du tableau de travail
         this.arrPostIt.unshift(newPostIt);
 
-        // 4 - Reconstruit le contenu de la liste
+        // 4 - Enregistrement des données
+        this.dataService.saveAll(this.arrPostIt);
+
+        // 5 - Reconstruit le contenu de la liste
         this.renderList();
 
-        // 5 - Vider les champs du formulaire
+        // 6 - Vider les champs du formulaire
         this.elInputNewPiTitle.value = '';
         this.elTextareaNewPiContent.value = '';
     }
@@ -244,7 +267,10 @@ class App {
         // 1 - Vider le tableau de la liste des Post-Its
         this.arrPostIt = [];
 
-        // 2 - Regéner la liste à l'affichage
+        // 2 - Enregistrement des données
+        this.dataService.saveAll(this.arrPostIt);
+
+        // 3 - Regéner la liste à l'affichage
         this.renderList();
     }
 
@@ -280,6 +306,10 @@ class App {
         const arrListAfterDelete = this.arrPostIt.filter(pi => !Object.is(postIt, pi));
         // On réaffecte le tableau de post-it avec ce nouveau tableau
         this.arrPostIt = arrListAfterDelete;
+
+        // Enregistrement des données
+        this.dataService.saveAll(this.arrPostIt);
+
         // On refait l'affichage
         this.renderList();
     }
@@ -314,6 +344,9 @@ class App {
         // Fonction de tri à bulle
         this.arrPostIt.sort((a, b) => b.dateUpdate - a.dateUpdate);
 
+        // Enregistrement des données
+        this.dataService.saveAll(this.arrPostIt);
+
         // - Gestion de l'affichage de la liste
         this.renderList();
     }
@@ -339,9 +372,10 @@ class App {
 
 }
 
+const dataService = new PostItService();
 // On crée une instance de App dans une variable
 // La variable est l'équivalent de la propriété statique "$instance" en PHP
-const app = new App();
+const app = new App(dataService);
 
 // On exporte cette variable.
 // Si à l'extérieur il y a plusieurs imports de cette variable,
