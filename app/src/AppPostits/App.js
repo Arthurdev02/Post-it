@@ -34,8 +34,20 @@ class App {
 
         // Rendu de l'Interface Utilisateur
         this.renderBaseUI();
+
+        //Pose des ecouteur 
+        this.initPostItListeners();
     }
 
+
+
+    /**
+     * Initialise les écouteur des évenements sur les post-it
+     */
+    initPostItListeners() {
+        //Suppression d'un post-it
+        document.addEventListener('pi.delet', this.handlerOnPiDelete.bind(this));
+    }
     /**
      * Effectue le rendu de l'UI de base
      */
@@ -69,17 +81,20 @@ class App {
         // - <form novalidate>
         const elForm = document.createElement('form');
         elForm.noValidate = true;
+        elForm.addEventListener('submit', this.handlerAddNewPostIt.bind(this));
 
         // <input type="text" placeholder="Titre">
         this.elInputNewPiTitle = document.createElement('input');
         this.elInputNewPiTitle.type = 'text';
         this.elInputNewPiTitle.placeholder = 'Titre';
         this.elInputNewPiTitle.addEventListener('focus', this.handlerRemoveError.bind(this));
+        this.elInputNewPiTitle.addEventListener('input', this.handlerRemoveError.bind(this));
 
         // <textarea placeholder="Contenu"></textarea>
         this.elTextareaNewPiContent = document.createElement('textarea');
         this.elTextareaNewPiContent.placeholder = 'Contenu';
         this.elTextareaNewPiContent.addEventListener('focus', this.handlerRemoveError.bind(this));
+        this.elTextareaNewPiContent.addEventListener('input', this.handlerRemoveError.bind(this));
 
         // <button type="button">➕</button>
         const elBtnNewPiAdd = document.createElement('button');
@@ -144,6 +159,9 @@ class App {
      * @param {Event} evt Événement produit intercepté par l'écouteur
      */
     handlerAddNewPostIt(evt) {
+        // Annuler le comportement par défaut de l'événement (utile pour bloquer l'envoi de "submit")
+        evt.preventDefault();
+
         // Récupérer la saisie
         let newTitle = this.elInputNewPiTitle.value;
         let newContent = this.elTextareaNewPiContent.value;
@@ -213,11 +231,28 @@ class App {
      * @param {Event} evt Événement produit intercepté par l'écouteur
      */
     handlerClear(evt) {
-        // 1 - Vider le tableaux de la liste des des Post-Its
+        // 1 - Vider le tableau de la liste des Post-Its
         this.arrPostIt = [];
-        // 2 - Regénérer la liste à l'affic
+
+        // 2 - Regéner la liste à l'affichage
         this.renderList();
     }
+
+    /**
+     * Gestionnaire de suppression d'un Post-It
+     * 
+     * @param {CustomEvent} evt 
+     */
+    handlerOnPiDelete(evt) {
+        const postIt = evt.detail.emitter;
+        //Array filter retourn un tableau des post-it sans celui que l'on veut supprimer
+        const arrListAfterDelete = this.arrPostIt.filter(pi => !Object.is(postIt, pi));
+        //O,n r&afecte le tableai de post pi avc ce nouveaux tablreau
+        this.arrPostIt = arrListAfterDelete;
+    //On regénère l'affichage
+        this.renderList();
+    }
+
 
 }
 
